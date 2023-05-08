@@ -695,13 +695,60 @@ describe('Logger Instance', function () {
   // TODO: Revisit to improve these
   describe('Logging non-primitive data types', function () {
     describe('.log', function () {
+      it('.log(\'info\', msg) not modify original objects passed as messages', function(done) {
+        const msg = {
+          level: 'rookie',
+          message: 'This is a test',
+        };
+        const originalMsg = { ...msg };
+        const logger = helpers.createLogger(function (info) {
+          assume(msg).deep.equals(originalMsg);
+          done();
+        });
+
+        logger.log('info', msg);
+      });
+
+      it('.log(msg) does not modify original objects passed as messages', function(done) {
+        const msg = {
+          level: 'debug',
+          message: 'This is a test',
+        };
+        const originalMsg = { ...msg };
+        const logger = winston.createLogger();
+        //const logger = helpers.createLogger(function (info) {
+        //  assume(msg).deep.equals(originalMsg);
+        //  done();
+        //});
+  
+        logger.log(msg);
+        assume(msg).deep.equals(originalMsg);
+        done();
+      });
+
+      it('.info(msg) does not modify original objects passed as messages', function(done) {
+        const msg = {
+          level: 'debug',
+          message: 'This is a test',
+        };
+        const originalMsg = { ...msg };
+        const logger = helpers.createLogger(function (info) {
+          assume(msg).deep.equals(originalMsg);
+          done();
+        });
+
+        logger.info(msg);
+      });
+
       it(`.log(new Error()) uses Error instance as info`, function (done) {
         const err = new Error('test');
         err.level = 'info';
 
         const logger = helpers.createLogger(function (info) {
           assume(info).instanceOf(Error);
-          assume(info).equals(err);
+          assume(info.message).equals(err.message);
+          assume(info.stack).equals(err.stack);
+          assume(info.level).equals(err.level);
           done();
         });
 
@@ -772,7 +819,9 @@ describe('Logger Instance', function () {
         const err = new Error('test');
         const logger = helpers.createLogger(function (info) {
           assume(info).instanceOf(Error);
-          assume(info).equals(err);
+          assume(info.message).equals(err.message);
+          assume(info.stack).equals(err.stack);
+          assume(info.level).equals('info');       
           done();
         });
 
@@ -959,7 +1008,9 @@ describe('Logger Instance', function () {
         const err = new Error('test');
         const logger = helpers.createLogger(function (info) {
           assume(info).instanceOf(Error);
-          assume(info).equals(err);
+          assume(info.message).equals(err.message);
+		  assume(info.stack).equals(err.stack);
+		  assume(info.level).equals('info');
           done();
         });
 
